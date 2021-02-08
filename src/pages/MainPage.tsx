@@ -1,5 +1,5 @@
-import React, { useState, useRef, useEffect } from "react";
-import { RouteComponentProps, withRouter } from "react-router-dom";
+import React, { useState, useRef, useEffect, useLayoutEffect } from "react";
+import { Route, RouteComponentProps, withRouter } from "react-router-dom";
 import { gql, useQuery } from "@apollo/client";
 
 import SideBar from "../components/sidebar";
@@ -32,13 +32,6 @@ interface IUser {
   email: string;
 }
 
-interface ISideBarRefProps {
-  sideBarRef: HTMLDivElement;
-}
-
-interface IhandleTest {
-  handleTest: () => void;
-}
 const MainPage = (props: RouteComponentProps) => {
   const { loading, error, data } = useQuery(TEST_QUERY);
 
@@ -46,32 +39,37 @@ const MainPage = (props: RouteComponentProps) => {
   if (error) return <p>error...</p>;
 
   const left = 300;
-  const [collapse, setCollase] = useState(false);
-  const sideBarRef = useRef<HTMLDivElement>(null);
+  const [collapse, setCollapse] = useState<boolean>(false);
   const MainPageRef = useRef<HTMLDivElement>(null);
-  const handleToggle = () => setCollase(!collapse);
   const handleTest = () => {
-    console.log("handleTest");
+    setCollapse(!collapse);
   };
-  // useEffect(() => {
-  //   if (collapse) {
-  //     sideBarRef.current.style.left = `-${left}px`;
-  //     MainContainerRef.current.style.marginLeft = "0";
-  //   } else {
-  //     sideBarRef.current.style.left = "0";
-  //     MainContainerRef.current.style.marginLeft = `${left}px`;
-  //   }
-  // }, [collapse]);
+
+  useEffect(() => {
+    const { current } = MainPageRef;
+
+    if (!current) {
+      return;
+    } else {
+      if (collapse) {
+        current.style.marginLeft = "0";
+      } else {
+        current.style.marginLeft = `${left}px`;
+      }
+    }
+  }, [collapse]);
 
   const users = data.users.data;
   const { id, name, email } = users;
   console.log("users data:", users);
+  // console.log("main Props:", props);
   return (
     <div id="mainPage">
       {/* 문제부분 */}
-      {/* <SideBar {...props} handleTest={handleTest} /> */}
+      <SideBar {...props} collapse={collapse} handleTest={handleTest} />
       메인페이지
       <div className="usersWrap" ref={MainPageRef}>
+        <div onClick={handleTest}>mainclick</div>
         {users.map((user: IUser, i: IAlbum) => {
           return (
             <div key={user.id}>
@@ -95,6 +93,11 @@ const MainPage = (props: RouteComponentProps) => {
         {/* </div> */}
         {/* ); */}
         {/* })} */}
+        <div className="flex flex-row">
+          <div>1</div>
+          <div>2</div>
+          <div>3</div>
+        </div>
       </div>
     </div>
   );

@@ -1,19 +1,55 @@
-import React, { useCallback } from "react";
-import { RouteComponentProps } from "react-router-dom";
+import React, {
+  useCallback,
+  useEffect,
+  useState,
+  useRef,
+  useLayoutEffect,
+  ButtonHTMLAttributes,
+} from "react";
+import {
+  match,
+  Route,
+  RouteComponentProps,
+  RouterChildContext,
+  withRouter,
+} from "react-router-dom";
 // import { useDispatch, useSelector } from "react-redux";
 import { NavLink } from "react-router-dom";
+import { sideBar } from "../../utils/sideBar";
+import "./index.css";
 
-const SideBar = (props: RouteComponentProps, handleTest: string) => {
-  //   const dispatch = useDispatch();
-  //   const posts = useSelector((state) => state.postsReducer.posts);
-  //   const handlePosts = useCallback(() => dispatch(getAsyncAction.request()), [
-  //     dispatch,
-  //   ]);
+interface IParams extends RouteComponentProps {
+  collapse: boolean;
+  handleTest: (e: React.MouseEvent<HTMLDivElement>) => void;
+}
+
+const SideBar = ({ match, collapse, handleTest }: IParams) => {
+  const left = 300;
+  const sideBarRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const { current } = sideBarRef;
+
+    if (!current) {
+      return;
+    } else {
+      if (collapse) {
+        current.style.left = `-${left}px`;
+      } else {
+        current.style.left = "0";
+      }
+    }
+  }, [collapse]);
+
+  console.log("side bar props:", match.url);
 
   return (
-    <div id="sideBar">
-      <div>클릭</div>
-      {/* <div className="sideBarBrand d-flex justify-content-center align-items-center">
+    <div id="sideBar" ref={sideBarRef}>
+      <div>sideBar</div>
+      <div onClick={handleTest}>test2 Click</div>
+      <NavLink to={`/`}>main</NavLink>
+      <NavLink to={`/user-stories`}>user-stories</NavLink>
+      <div className="sideBarBrand d-flex justify-content-center align-items-center">
         <img src="http://placehold.it/180x35" />
       </div>
 
@@ -24,10 +60,10 @@ const SideBar = (props: RouteComponentProps, handleTest: string) => {
               <div className="card-header">
                 <h5 className="mb-0">
                   <button
-                    className="btn btn-link d-flex align-items-center"
+                    className=""
                     data-toggle="collapse"
                     data-target={`#acc${value.listsId}`}
-                    aria-expanded={`${index === 0 ? "true" : "false"}`}
+                    // aria-expanded={`${index === 0 ? "true" : "false"}`}
                   >
                     <i className={`listsIcon ${value.listsIcon}`}></i>
                     {value.listsTitle}
@@ -46,9 +82,15 @@ const SideBar = (props: RouteComponentProps, handleTest: string) => {
                     {value.list.map((value2, index2) => {
                       return (
                         <NavLink
-                          to={`${match.url}/${value.listsUrl}/${value2.url}`}
+                          // to={`${match.url}/${value.listsUrl}/${value2.url}`}
+                          to={`${value2.url}`}
                           activeClassName="selected"
                           key={index2}
+                          onClick={() =>
+                            console.log(
+                              `match.url: ${match.url} value.listsUrl: ${value.listsUrl} value2.url ${value2.url}`
+                            )
+                          }
                         >
                           <li>{value2.title}</li>
                         </NavLink>
@@ -60,7 +102,7 @@ const SideBar = (props: RouteComponentProps, handleTest: string) => {
             </div>
           );
         })}
-      </div> */}
+      </div>
     </div>
   );
 };
